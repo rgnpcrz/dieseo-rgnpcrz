@@ -1,17 +1,10 @@
-import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Button,
-  Badge,
-  ToggleButton,
-} from "react-bootstrap";
+import { Container, Row, Col, Card, Button, Badge, ToggleButton } from "react-bootstrap";
 import FilmService from "../../services/FilmService";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./film-list.css";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const FilmList = () => {
   const [films, setFilms] = useState([]);
@@ -62,11 +55,7 @@ const FilmList = () => {
   function addFavorite(id, item, list, setList) {
     const index = list.findIndex((film) => film === item);
     const newItem = { ...item, onLike: !item.onLike };
-    const newlist = [
-      ...list.slice(0, index),
-      newItem,
-      ...list.slice(index + 1),
-    ];
+    const newlist = [...list.slice(0, index), newItem, ...list.slice(index + 1)];
     setList([...newlist]);
     localStorage.setItem(id, JSON.stringify(item));
   }
@@ -74,11 +63,7 @@ const FilmList = () => {
   function removeFavorite(id, item, list, setList) {
     const index = list.findIndex((film) => film === item);
     const newItem = { ...item, onLike: !item.onLike };
-    const newlist = [
-      ...list.slice(0, index),
-      newItem,
-      ...list.slice(index + 1),
-    ];
+    const newlist = [...list.slice(0, index), newItem, ...list.slice(index + 1)];
     setList([...newlist]);
     localStorage.removeItem(id);
   }
@@ -107,24 +92,12 @@ const FilmList = () => {
 
       return (
         <Col key={item.id}>
-          <Card
-            bg="light"
-            text="dark"
-            style={{ width: "14rem" }}
-            className="cardList"
-          >
+          <Card bg="light" text="dark" style={{ width: "14rem" }} className="cardList">
             <Link to={`/film/${item.id}`}>
               <Card.Img variant="top" src={item.poster_path} alt={item.title} />
             </Link>
             <Card.Body>
-              <ToggleButton
-                bg="danger"
-                size="sm"
-                type="checkbox"
-                className="me-2"
-                variant="outline-danger"
-                onClick={() => onToggleFavorites(item.id, item, i)}
-              >
+              <ToggleButton bg="danger" size="sm" type="checkbox" className="me-2" variant="outline-danger" onClick={() => onToggleFavorites(item.id, item, i)}>
                 {item.onLike ? <AiFillHeart /> : <AiOutlineHeart />}
               </ToggleButton>
               {genre}
@@ -142,15 +115,9 @@ const FilmList = () => {
 
   return (
     <Container className="justify-content-md-center">
-      {items}
-      <Button
-        variant="dark"
-        size="lg"
-        disabled={newItemLoading}
-        onClick={() => onRequest(page)}
-      >
-        Show More
-      </Button>
+      <InfiniteScroll dataLength={films.length} next={onRequest} hasMore={!newItemLoading} loader={<h4>Loading...</h4>} endMessage={<p>No more films to show.</p>}>
+        {renderFilms(films)}
+      </InfiniteScroll>
     </Container>
   );
 };

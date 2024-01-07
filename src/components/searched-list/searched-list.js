@@ -7,31 +7,24 @@ import { withRouter } from "react-router";
 const Searched = (props) => {
   const [films, setFilms] = useState([]);
   const [genres, setGenres] = useState([]);
-
   const newService = new FilmService();
 
   useEffect(() => {
-    renderSearched();
-  }, [props.query]); //watching for query
+    const query = props.match.params.query;
+    renderSearched(query);
+  }, [props.match.params.query]);
 
-  const renderSearched = () => {
-    const {
-      match: {
-        params: { query },
-      },
-    } = props;
+  const renderSearched = (query) => {
     getGenresList();
     getFilmsList(query);
   };
 
   const onGenresLoaded = (res) => {
-    //(res) is required to send params to function
-    setGenres((genres) => res);
+    setGenres(res);
   };
 
   const onFilmLoaded = (res) => {
-    //(res) is required to send params to function
-    setFilms((films) => res);
+    setFilms(res);
   };
 
   const getFilmsList = (query) => {
@@ -47,21 +40,13 @@ const Searched = (props) => {
     if (!item.onLike) {
       const index = films.findIndex((film) => film === item);
       const newItem = { ...item, onLike: !item.onLike };
-      const newlist = [
-        ...films.slice(0, index),
-        newItem,
-        ...films.slice(index + 1),
-      ];
+      const newlist = [...films.slice(0, index), newItem, ...films.slice(index + 1)];
       setFilms([...newlist]);
       localStorage.setItem(id, JSON.stringify(item));
     } else {
       const index = films.findIndex((film) => film === item);
       const newItem = { ...item, onLike: !item.onLike };
-      const newlist = [
-        ...films.slice(0, index),
-        newItem,
-        ...films.slice(index + 1),
-      ];
+      const newlist = [...films.slice(0, index), newItem, ...films.slice(index + 1)];
       setFilms([...newlist]);
       localStorage.removeItem(id);
     }
@@ -90,21 +75,12 @@ const Searched = (props) => {
 
       return (
         <Col key={item.id}>
-          <Card
-            bg="light"
-            text="dark"
-            style={{ width: "14rem" }}
-            className="cardList"
-          >
+          <Card bg="light" text="dark" style={{ width: "14rem" }} className="cardList">
             <Link to={`/film/${item.id}`}>
               <Card.Img variant="top" src={item.poster_path} alt={item.title} />
             </Link>
             <Card.Body>
-              <Badge
-                bg="danger"
-                className="favor"
-                onClick={() => onToggleFavorites(item.id, item, i)}
-              >
+              <Badge bg="danger" className="favor" onClick={() => onToggleFavorites(item.id, item, i)}>
                 {!item.onLike === true ? "Add" : "Remove"}
               </Badge>
               {genre}
